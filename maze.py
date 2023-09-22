@@ -1,3 +1,5 @@
+import pygame
+
 maze = [
     [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
     [1, 0, 0, 0, 1, 1, 0, 1, 0, 1, 0, 1],
@@ -40,10 +42,66 @@ def solve_maze(x, y):
     return False
 
 
+# Pygame setup
+pygame.init()
+CELL_SIZE = 40  # Defines how big the cells are
+SCREEN_WIDTH = CELL_SIZE * len(maze[0])
+SCREEN_HEIGHT = CELL_SIZE * len(maze)
+screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+pygame.display.set_caption('Maze Solver')
+
+COLORS = {
+    1: (255, 255, 255),  # Wall
+    0: (0, 0, 0),        # Path
+    2: (0, 255, 0),      # Solution
+    'start': (0, 0, 255),
+    'end': (255, 0, 0)
+}
+
+
+def draw_maze():
+    WALL_COLOR = (0, 0, 0)  # black color
+    WALL_THICKNESS = 10
+
+    for i in range(len(maze)):
+        for j in range(len(maze[i])):
+            pygame.draw.rect(
+                screen, COLORS[maze[i][j]], (j*CELL_SIZE, i*CELL_SIZE, CELL_SIZE, CELL_SIZE))
+
+            # Draw vertical wall to the right of every cell
+            pygame.draw.line(screen, WALL_COLOR, ((j+1)*CELL_SIZE, i*CELL_SIZE),
+                             ((j+1)*CELL_SIZE, (i+1)*CELL_SIZE), WALL_THICKNESS)
+
+            # Draw horizontal wall below every cell
+            pygame.draw.line(screen, WALL_COLOR, (j*CELL_SIZE, (i+1)*CELL_SIZE),
+                             ((j+1)*CELL_SIZE, (i+1)*CELL_SIZE), WALL_THICKNESS)
+
+    # Draw the leftmost vertical walls and topmost horizontal walls for completeness
+    pygame.draw.line(screen, WALL_COLOR, (0, 0),
+                     (0, SCREEN_HEIGHT), WALL_THICKNESS)
+    pygame.draw.line(screen, WALL_COLOR, (0, 0),
+                     (SCREEN_WIDTH, 0), WALL_THICKNESS)
+
+    pygame.draw.rect(screen, COLORS['start'], (start_coordinate[1] *
+                     CELL_SIZE, start_coordinate[0]*CELL_SIZE, CELL_SIZE, CELL_SIZE))
+    pygame.draw.rect(screen, COLORS['end'], (destination_coordinate[1] *
+                     CELL_SIZE, destination_coordinate[0]*CELL_SIZE, CELL_SIZE, CELL_SIZE))
+
+    pygame.display.flip()
+
+
 if solve_maze(*start_coordinate):
     print("Path found!")
+    draw_maze()
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
 else:
     print("No path available")
 
 for row in maze:
     print(row)
+
+pygame.quit()
