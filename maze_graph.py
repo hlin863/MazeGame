@@ -1,4 +1,5 @@
 import pygame
+import time
 
 # Represent the graph in the code with node positions
 graph = {
@@ -22,18 +23,24 @@ graph = {
 start = 'A'
 goal = 'O'
 
-# DFS as before
+# Modified DFS function to be generator-based
 
 
-def dfs(graph, node, visited):
-    if node not in visited:
-        visited.append(node)
-        for neighbour in graph[node]['connections']:
-            dfs(graph, neighbour, visited)
-    return visited
+def dfs(graph, node):
+    visited = []
+    stack = [node]
+
+    while stack:
+        current = stack.pop()
+        if current not in visited:
+            visited.append(current)
+            yield current  # Yield the node being visited
+            for neighbour in graph[current]['connections']:
+                stack.append(neighbour)
 
 
-visited_nodes = dfs(graph, start, [])
+# Initialize DFS
+dfs_gen = dfs(graph, start)
 
 # Pygame setup
 pygame.init()
@@ -64,7 +71,9 @@ def draw_graph():
 
     # Draw nodes
     for node, data in graph.items():
-        color = COLORS['visited'] if node in visited_nodes else COLORS['node']
+        color = COLORS['node']
+        if node in visited_nodes:
+            color = COLORS['visited']
         if node == start:
             color = COLORS['start']
         elif node == goal:
@@ -74,13 +83,22 @@ def draw_graph():
         pygame.draw.circle(screen, color, (x * CELL_SIZE +
                            CELL_SIZE // 2, y * CELL_SIZE + CELL_SIZE // 2), 15)
 
-    pygame.display.flip()
 
-
-draw_graph()
+visited_nodes = []
 
 running = True
 while running:
+    try:
+        # Proceed to next step in DFS
+        visited_nodes.append(next(dfs_gen))
+    except StopIteration:
+        # DFS complete
+        pass
+
+    draw_graph()
+    pygame.display.update()
+    time.sleep(1000)  # Pause to show the step visually
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
