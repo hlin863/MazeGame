@@ -24,6 +24,18 @@ def is_valid(x, y):
 
 
 def solve_maze(x, y):
+    # This is to add a delay to visualize the backtracking
+    # make delay time 1 second for a slower visualization
+    pygame.time.wait(1000)
+
+    draw_maze()  # Update the display during each step
+
+    # Handle events in the queue, so the window does not freeze
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            exit()
+
     if (x, y) == tuple(destination_coordinate):
         maze[x][y] = 2
         return True
@@ -60,6 +72,8 @@ COLORS = {
 
 
 def draw_maze():
+    screen.fill((0, 0, 0))  # Clear the screen
+
     WALL_COLOR = (0, 0, 0)  # black color
     WALL_THICKNESS = 10
 
