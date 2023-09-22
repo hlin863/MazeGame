@@ -97,7 +97,7 @@ while running:
 
     draw_graph()
     pygame.display.update()
-    time.sleep(1000)  # Pause to show the step visually
+    time.sleep(1)  # Pause to show the step visually
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
